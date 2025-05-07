@@ -17,7 +17,7 @@ public class Login extends javax.swing.JFrame {
     }
     public void connectToDatabase(String user, String password) {
         try {
-            String url = "jdbc:mysql://localhost:3308/ferreteria_acosta";
+            String url = config.getDatabaseUrl();
             conn = DriverManager.getConnection(url, user, password);
             
         } catch (SQLException ex) {
@@ -51,7 +51,7 @@ public class Login extends javax.swing.JFrame {
     private void iniciarSesion() {
         String user = userLog.getText();
         String password = new String(passLog.getPassword());
-
+        
         if (verificaCredenciales(user, password)) {
             try {
                 // Configurar credenciales en la clase Configuracion
