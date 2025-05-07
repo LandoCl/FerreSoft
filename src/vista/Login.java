@@ -1,77 +1,52 @@
 package vista;
 
 import controles.Configuracion;
+import controles.ControlLogin;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class Login extends javax.swing.JFrame {
+    private ControlLogin controlLogin;
     private Configuracion config;
-    private Connection conn;
-    private Menu menu;
+    
     public Login() {
         config = new Configuracion();
+        controlLogin = new ControlLogin(config);
         initComponents();
     }
-    public void connectToDatabase(String user, String password) {
-        try {
-            String url = config.getDatabaseUrl();
-            conn = DriverManager.getConnection(url, user, password);
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,
-                    "Error al conectar a la base de datos: " + ex.getMessage());
-        }
-    }
-
-    public boolean verificaCredenciales(String user, String password) {
-        String url = config.getDatabaseUrl(); // URL desde Configuracion
-        try (Connection testConn = DriverManager.getConnection(url, user, password)) {
-            return true; // Si conecta, credenciales válidas
-        } catch (SQLException ex) {
-            return false; // Credenciales inválidas
-        }
-    }
+    
     private void salir(int opc) {
-        switch (opc) {
-            case JOptionPane.YES_OPTION -> System.exit(0);
-            case JOptionPane.NO_OPTION -> {
-            }
-            case JOptionPane.CANCEL_OPTION -> {
-            }
+        if (opc == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }
+    
     private void limpiarCampos() {
         userLog.setText("");
         passLog.setText("");
         userLog.requestFocusInWindow();
     }
+    
     private void iniciarSesion() {
         String user = userLog.getText();
         String password = new String(passLog.getPassword());
         
-        if (verificaCredenciales(user, password)) {
+        if (controlLogin.verificaCredenciales(user, password)) {
             try {
-                // Configurar credenciales en la clase Configuracion
-                
-
-                // Intentar conectar con las credenciales proporcionadas
-                Connection conn = DriverManager.getConnection(config.getDatabaseUrl(), user, password);
-                JOptionPane.showMessageDialog(this, "Conexión exitosa. Bienvenido " + user + "!", "Login", JOptionPane.INFORMATION_MESSAGE);
-
-                // Inicia la aplicación principal
-                config.setUser(user);
-                config.setPassword(password);
+                Connection conn = controlLogin.connectToDatabase(user, password);
+                JOptionPane.showMessageDialog(this, "Conexión exitosa. Bienvenido " + user + "!", 
+                        "Login", JOptionPane.INFORMATION_MESSAGE);
+                controlLogin.configurarCredenciales(user, password);
                 new Menu(config).setVisible(true);
-                dispose(); // Cierra la ventana de login
-
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                dispose();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Credenciales incorrectas", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Credenciales incorrectas", 
+                "Error", JOptionPane.ERROR_MESSAGE);
             limpiarCampos();
         }
     }
@@ -206,40 +181,6 @@ public class Login extends javax.swing.JFrame {
             iniciarSesion();
         }
     }//GEN-LAST:event_keyPressed
-
-    
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Login().setVisible(true);
-            }
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnIniciar;
     private javax.swing.JLabel jLabel1;
