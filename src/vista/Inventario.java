@@ -14,6 +14,11 @@ public class Inventario extends javax.swing.JFrame {
         this.config = config;
         initComponents();
         cInv = new ControlInventario(config);
+        cargarTablaProductos();
+    }
+
+    private void cargarTablaProductos() {
+        jTable1.setModel(cInv.cargarProductos());
     }
 
     @SuppressWarnings("unchecked")
@@ -201,6 +206,7 @@ public class Inventario extends javax.swing.JFrame {
     private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
         if (evt.getSource()==btnAgregarI) {
             new AgregarItem(config).setVisible(true);
+            cargarTablaProductos();
         }
     }//GEN-LAST:event_actionPerformed
 
