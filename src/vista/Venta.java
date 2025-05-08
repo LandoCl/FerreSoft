@@ -1,12 +1,14 @@
 package vista;
 
+import controles.Configuracion;
+
 
 public class Venta extends javax.swing.JFrame {
 
     /**
      * Creates new form Venta
      */
-    public Venta() {
+    public Venta(Configuracion config) {
         initComponents();
     }
 

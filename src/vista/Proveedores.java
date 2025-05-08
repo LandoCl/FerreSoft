@@ -4,6 +4,8 @@
  */
 package vista;
 
+import controles.Configuracion;
+
 /**
  *
  * @author Lando
@@ -13,7 +15,7 @@ public class Proveedores extends javax.swing.JFrame {
     /**
      * Creates new form Proveedores
      */
-    public Proveedores() {
+    public Proveedores(Configuracion config) {
         initComponents();
     }
 

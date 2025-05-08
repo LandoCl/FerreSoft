@@ -173,19 +173,35 @@ public class Menu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
-        
+        if (evt.getSource()==btnVenta) {
+            new Venta(config).setVisible(true);
+            dispose();
+        }
+        if (evt.getSource()==btnInv) {
+            new Inventario(config).setVisible(true);
+            dispose();
+        }
+        if (evt.getSource()==btnProv) {
+            new Proveedores(config).setVisible(true);
+            dispose();
+        }
+        if (evt.getSource()==btnUser) {
+            new Usuarios(config).setVisible(true);
+            dispose();
+        }
     }//GEN-LAST:event_actionPerformed
 
     private void keyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keyPressed
         if (evt.getKeyCode()==KeyEvent.VK_ESCAPE) {
-            
+            exit();
         }
     }//GEN-LAST:event_keyPressed
     private void exit(){
         switch (JOptionPane.showConfirmDialog(null, "¿Deseas salir del sistema?")) {
-            case JOptionPane.YES_OPTION:
-            case JOptionPane.NO_OPTION:
-            case JOptionPane.CANCEL_OPTION:
+            case JOptionPane.YES_OPTION: 
+                dispose();
+                new Login().setVisible(true);
+                break;
         }
     }
     

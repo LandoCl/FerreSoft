@@ -4,6 +4,8 @@
  */
 package vista;
 
+import controles.Configuracion;
+
 /**
  *
  * @author jabs0
@@ -13,7 +15,7 @@ public class Inventario extends javax.swing.JFrame {
     /**
      * Creates new form Inventario
      */
-    public Inventario() {
+    public Inventario(Configuracion config) {
         initComponents();
     }
 
