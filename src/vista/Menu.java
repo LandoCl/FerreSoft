@@ -1,6 +1,7 @@
 package vista;
 
 import controles.Configuracion;
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
@@ -10,8 +11,25 @@ public class Menu extends javax.swing.JFrame {
     public Menu(Configuracion config) {
         this.config = config;
         initComponents();
+        verificaUser();
     }
-
+    private void verificaUser(){
+        if (config.getUser().equals("cajero")) {
+        // Desactivar todos los botones excepto btnVenta
+        btnInv.setEnabled(false);
+        btnProv.setEnabled(false);
+        btnUser.setEnabled(false);
+        
+        // Opcional: Cambiar apariencia para indicar que están desactivados
+        btnInv.setBackground(Color.GRAY);
+        btnProv.setBackground(Color.GRAY);
+        btnUser.setBackground(Color.GRAY);
+        
+        // Asegurar que btnVenta está activo
+        btnVenta.setEnabled(true);
+        btnVenta.setBackground(new Color(0, 102, 102)); // Restaurar color original
+    }
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

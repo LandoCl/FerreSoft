@@ -1,15 +1,15 @@
 package vista;
 
 import controles.Configuracion;
+import java.awt.event.KeyEvent;
 
 
 public class Venta extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Venta
-     */
+    private Configuracion config;
     public Venta(Configuracion config) {
         initComponents();
+        this.config = config;
     }
 
     
@@ -36,6 +36,12 @@ public class Venta extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
+
         jLabel1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 36)); // NOI18N
         jLabel1.setText("Ventas");
 
@@ -53,25 +59,45 @@ public class Venta extends javax.swing.JFrame {
 
         item.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                itemActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
         item1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item1ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
         item2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item2ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
         item3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item3ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
@@ -83,13 +109,59 @@ public class Venta extends javax.swing.JFrame {
                 "Nombre", "Cantidad", "Precio", "Codigo", "Proveedor"
             }
         ));
+        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         btnTotalV.setText("Total");
+        btnTotalV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnTotalV.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         btnNuevoV.setText("Nuevo");
+        btnNuevoV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnNuevoV.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
+
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         btnReporte.setText("Reporte");
+        btnReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnReporte.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -198,21 +270,17 @@ public class Venta extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void itemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemActionPerformed
+    private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_itemActionPerformed
+    }//GEN-LAST:event_actionPerformed
 
-    private void item1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item1ActionPerformed
+    private void keyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            new Menu(config).setVisible(true);
+            dispose(); // Cerrar ventana al presionar ESC
+        }
+    }//GEN-LAST:event_keyPressed
 
-    private void item2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item2ActionPerformed
-
-    private void item3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNuevoV;
     private javax.swing.JButton btnReporte;
