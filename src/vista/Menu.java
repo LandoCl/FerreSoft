@@ -1,9 +1,6 @@
 package vista;
 
 import controles.Configuracion;
-import java.awt.Color;
-import java.awt.event.KeyEvent;
-import javax.swing.JOptionPane;
 
 public class Menu extends javax.swing.JFrame {
     private Configuracion config;
@@ -11,25 +8,8 @@ public class Menu extends javax.swing.JFrame {
     public Menu(Configuracion config) {
         this.config = config;
         initComponents();
-        verificaUser();
     }
-    private void verificaUser(){
-        if (config.getUser().equals("cajero")) {
-        // Desactivar todos los botones excepto btnVenta
-        btnInv.setEnabled(false);
-        btnProv.setEnabled(false);
-        btnUser.setEnabled(false);
-        
-        // Opcional: Cambiar apariencia para indicar que están desactivados
-        btnInv.setBackground(Color.GRAY);
-        btnProv.setBackground(Color.GRAY);
-        btnUser.setBackground(Color.GRAY);
-        
-        // Asegurar que btnVenta está activo
-        btnVenta.setEnabled(true);
-        btnVenta.setBackground(new Color(0, 102, 102)); // Restaurar color original
-    }
-    }
+
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -37,81 +17,42 @@ public class Menu extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        btnVenta = new javax.swing.JButton();
-        btnInv = new javax.swing.JButton();
-        btnProv = new javax.swing.JButton();
-        btnUser = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
-            }
-        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(0, 102, 102));
-        jPanel2.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/etiqueta-de-precio.png"))); // NOI18N
+        jButton1.setText("            Ventas");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
             }
         });
 
-        btnVenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/etiqueta-de-precio.png"))); // NOI18N
-        btnVenta.setText("            Ventas");
-        btnVenta.addActionListener(new java.awt.event.ActionListener() {
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/lista-de-verificacion.png"))); // NOI18N
+        jButton2.setText("         Inventario");
+
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/cadena-de-suministro.png"))); // NOI18N
+        jButton3.setText("       Proveedores");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Menu.this.actionPerformed(evt);
-            }
-        });
-        btnVenta.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
+                jButton3ActionPerformed(evt);
             }
         });
 
-        btnInv.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/lista-de-verificacion.png"))); // NOI18N
-        btnInv.setText("         Inventario");
-        btnInv.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Menu.this.actionPerformed(evt);
-            }
-        });
-        btnInv.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
-            }
-        });
-
-        btnProv.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/cadena-de-suministro.png"))); // NOI18N
-        btnProv.setText("       Proveedores");
-        btnProv.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Menu.this.actionPerformed(evt);
-            }
-        });
-        btnProv.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
-            }
-        });
-
-        btnUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/nuevo-usuario.png"))); // NOI18N
-        btnUser.setText("      Usuarios");
-        btnUser.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Menu.this.actionPerformed(evt);
-            }
-        });
-        btnUser.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                Menu.this.keyPressed(evt);
-            }
-        });
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/nuevo-usuario.png"))); // NOI18N
+        jButton4.setText("      Usuarios");
 
         jLabel1.setBackground(new java.awt.Color(0, 51, 51));
         jLabel1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
@@ -126,15 +67,15 @@ public class Menu extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnVenta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnInv, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
                 .addContainerGap())
             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(btnProv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         jPanel2Layout.setVerticalGroup(
@@ -142,16 +83,16 @@ public class Menu extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(47, 47, 47)
-                .addComponent(btnVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(174, 174, 174)
-                .addComponent(btnInv, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(39, 39, 39)
-                .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 100, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addGap(273, 273, 273)
-                    .addComponent(btnProv, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(355, Short.MAX_VALUE)))
         );
 
@@ -159,15 +100,23 @@ public class Menu extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(0, 51, 51));
 
+        jLabel2.setText("jLabel2");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 850, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(724, Short.MAX_VALUE)
+                .addComponent(jLabel2)
+                .addGap(92, 92, 92))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 0, 850, 100));
@@ -190,46 +139,27 @@ public class Menu extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
-        if (evt.getSource()==btnVenta) {
-            new Venta(config).setVisible(true);
-            dispose();
-        }
-        if (evt.getSource()==btnInv) {
-            new Inventario(config).setVisible(true);
-            dispose();
-        }
-        if (evt.getSource()==btnProv) {
-            new Proveedores(config).setVisible(true);
-            dispose();
-        }
-        if (evt.getSource()==btnUser) {
-            new Usuarios(config).setVisible(true);
-            dispose();
-        }
-    }//GEN-LAST:event_actionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        new Venta().setVisible(true);
+        dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void keyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keyPressed
-        if (evt.getKeyCode()==KeyEvent.VK_ESCAPE) {
-            exit();
-        }
-    }//GEN-LAST:event_keyPressed
-    private void exit(){
-        switch (JOptionPane.showConfirmDialog(null, "¿Deseas salir del sistema?")) {
-            case JOptionPane.YES_OPTION: 
-                dispose();
-                new Login().setVisible(true);
-                break;
-        }
-    }
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        new Proveedores().setVisible(true);
+        dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnInv;
-    private javax.swing.JButton btnProv;
-    private javax.swing.JButton btnUser;
-    private javax.swing.JButton btnVenta;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

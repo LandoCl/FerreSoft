@@ -15,7 +15,7 @@ public class Configuracion {
     private String actionSource;
 
     public Configuracion() {
-        this.databaseUrl = "jdbc:mysql://localhost:3308/ferreteria_acosta";
+        this.databaseUrl = "jdbc:mysql://localhost:3306/ferreteria_acosta";
         this.user = "administrador";
         this.password="admin1234";
     }
