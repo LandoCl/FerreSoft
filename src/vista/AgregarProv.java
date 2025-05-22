@@ -1,5 +1,6 @@
 package vista;
 
+import controles.Configuracion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,8 +13,9 @@ import javax.swing.JOptionPane;
  * @author jabs0
  */
 public class AgregarProv extends javax.swing.JFrame {
-
-    public AgregarProv() {
+    private Configuracion config;
+    public AgregarProv(Configuracion config) {
+        this.config = config;
         initComponents();
     }
 
@@ -154,7 +156,7 @@ public class AgregarProv extends javax.swing.JFrame {
 
     private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegresarActionPerformed
         // TODO add your handling code here:
-        new Proveedores().setVisible(true);
+        new Proveedores(config).setVisible(true);
         dispose();
     }//GEN-LAST:event_btnRegresarActionPerformed
 
