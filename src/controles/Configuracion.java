@@ -15,7 +15,7 @@ public class Configuracion {
     private String actionSource;
 
     public Configuracion() {
-        this.databaseUrl = "jdbc:mysql://localhost:3306/ferreteria_acosta";
+        this.databaseUrl = "jdbc:mysql://localhost:3308/ferreteria_acosta";
         this.user = "administrador";
         this.password="admin1234";
     }
@@ -53,7 +53,7 @@ public class Configuracion {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(databaseUrl, user, password);
-            String sql = "select user from mysql.db where db ='ferreteria_acosta';";
+            String sql = "select user from mysql.db where db ='ferreteria_acosta' and select_priv = 'Y';";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
