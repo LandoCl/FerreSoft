@@ -1,5 +1,9 @@
 package vista;
 
+import controles.Configuracion;
+import controles.ControlInventario;
+import controles.ControlVenta;
+import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
@@ -7,112 +11,105 @@ import java.sql.*;
 
 
 public class Venta extends javax.swing.JFrame {
-    private Connection conexion;
-
+    private ControlVenta controlVenta;
+    private ControlInventario controlInventario; // Para la búsqueda de productos
+    private Configuracion config;
     
+    // Los componentes (btnNuevoV, btnTotalV, item, item1, item2, item3, jTable1, jTextField2, etc.)
+    // se inicializan en el initComponents() generado por NetBeans.
     
-    public Venta() {
+    public Venta(Configuracion config) {
         initComponents();
-        conectarBD();
+        this.config = config;
+        controlVenta = new ControlVenta(config);
+        controlInventario = new ControlInventario(config);
         
-        btnNuevoV.addActionListener(e -> {
-            String nombre = item.getText();
-            String cantidad = item1.getText();
-            String precio = item2.getText();
-            String codigo = item3.getText();
-
-            if (nombre.isEmpty() || cantidad.isEmpty() || precio.isEmpty() || codigo.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Completa todos los campos");
-                return;
-            }
-
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.addRow(new Object[]{nombre, cantidad, precio, codigo, "ProveedorX"}); // Cambiar ProveedorX por el campo de Proveedor
-
-            // Limpiar campos
-            item.setText("");
-            item1.setText("");
-            item2.setText("");
-            item3.setText("");
-        });
-
-        btnTotalV.addActionListener(e -> {
-            guardarVenta();
-        });
-
+        // Configurar el modelo de la tabla para 4 columnas: Descripción, Cantidad, Precio, Código
+        DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Descripción", "Cantidad", "Precio", "Código"}, 0);
+        jTable1.setModel(tableModel);
     }
-     private void conectarBD() {
-        try {
-            conexion = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/ferreteria_acosta", "administrador", "admin1234");
-            System.out.println("Conexión exitosa a la base de datos.");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error de conexión: " + e.getMessage());
+    
+    // --- Métodos de lógica que serán llamados por los listeners asignados en initComponents() ---
+    
+    // Se llamará al pulsar ENTER en el campo "item" (Descripción)
+    private void buscarPorDescripcion() {
+        String descripcion = item.getText().trim();
+        if (descripcion.isEmpty()) {
+            return;
+        }
+        // Se obtiene la información del producto consultando ControlInventario
+        Object[] prodInfo = controlInventario.buscarProductoPorDescripcion(descripcion);
+        if (prodInfo != null) {
+            // prodInfo[0]: Descripción, prodInfo[1]: Precio, prodInfo[2]: Código
+            item.setText(prodInfo[0].toString());
+            item2.setText(String.valueOf(prodInfo[1]));
+            item3.setText(prodInfo[2].toString());
+            // Enfocar en el campo de cantidad (item1) y seleccionar su contenido
+            item1.requestFocus();
+            item1.selectAll();
+        } else {
+            JOptionPane.showMessageDialog(this, "Producto no encontrado por Descripción");
         }
     }
-
-    private void guardarVenta() {
-        try {
-            conexion.setAutoCommit(false);
-
-            // Insertar en tabla Venta
-            PreparedStatement ventaStmt = conexion.prepareStatement(
-                "INSERT INTO Venta (id_corte, fecha, total) VALUES (?, CURDATE(), ?)",
-                Statement.RETURN_GENERATED_KEYS
-            );
-
-            double total = calcularTotal();
-            ventaStmt.setInt(1, 1); // id_corte ficticio
-            ventaStmt.setDouble(2, total);
-            ventaStmt.executeUpdate();
-
-            ResultSet rs = ventaStmt.getGeneratedKeys();
-            rs.next();
-            int idVenta = rs.getInt(1);
-
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            for (int i = 0; i < model.getRowCount(); i++) {
-                int cantidad = Integer.parseInt(model.getValueAt(i, 1).toString());
-                double precio = Double.parseDouble(model.getValueAt(i, 2).toString());
-                int idProducto = Integer.parseInt(model.getValueAt(i, 3).toString());
-
-                PreparedStatement detalleStmt = conexion.prepareStatement(
-                    "INSERT INTO Detalle_Venta (id_venta, id_producto, cantidad, precio, total) VALUES (?, ?, ?, ?, ?)"
-                );
-                detalleStmt.setInt(1, idVenta);
-                detalleStmt.setInt(2, idProducto);
-                detalleStmt.setInt(3, cantidad);
-                detalleStmt.setDouble(4, precio);
-                detalleStmt.setDouble(5, cantidad * precio);
-                detalleStmt.executeUpdate();
-            }
-
-            conexion.commit();
-            jTextField2.setText(String.format("%.2f", total));
+    
+    // Se llamará al pulsar ENTER en el campo "item3" (Código)
+    private void buscarPorCodigo() {
+        String codigo = item3.getText().trim();
+        if (codigo.isEmpty()) {
+            return;
+        }
+        Object[] prodInfo = controlInventario.buscarProductoPorCodigo(codigo);
+        if (prodInfo != null) {
+            item.setText(prodInfo[0].toString());
+            item2.setText(String.valueOf(prodInfo[1]));
+            item3.setText(prodInfo[2].toString());
+            // Enfocar en el campo de cantidad (item1)
+            item1.requestFocus();
+            item1.selectAll();
+        } else {
+            JOptionPane.showMessageDialog(this, "Producto no encontrado por Código");
+        }
+    }
+    
+    // Método para agregar la fila a la tabla y luego enfocar el campo "item"
+    private void agregarFila() {
+        String nombre = item.getText().trim();
+        String cantidad = item1.getText().trim();
+        String precio = item2.getText().trim();
+        String codigo = item3.getText().trim();
+        
+        if (nombre.isEmpty() || cantidad.isEmpty() || precio.isEmpty() || codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Completa todos los campos");
+            return;
+        }
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.addRow(new Object[]{nombre, cantidad, precio, codigo});
+        
+        // Limpiar los campos y enfocar en "item" para la siguiente entrada
+        item.setText("");
+        item1.setText("");
+        item2.setText("");
+        item3.setText("");
+        item.requestFocus();
+    }
+    
+    // Lógica para el botón de registrar venta (ya asignado a btnTotalV)
+    private void registrarVenta() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        boolean exito = controlVenta.guardarVenta(model);
+        if (exito) {
+            double total = controlVenta.calcularTotal(model);
             JOptionPane.showMessageDialog(this, "Venta registrada con éxito.");
             model.setRowCount(0);
-
-        } catch (SQLException e) {
-            try {
-                conexion.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            JOptionPane.showMessageDialog(this, "Error al registrar venta: " + e.getMessage());
         }
     }
-
-    private double calcularTotal() {
-        double total = 0;
+    // Método que recalcula el total en base al contenido actual de la tabla y lo muestra en jTextField2
+    private void actualizarTotal() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            int cantidad = Integer.parseInt(model.getValueAt(i, 1).toString());
-            double precio = Double.parseDouble(model.getValueAt(i, 2).toString());
-            total += cantidad * precio;
-        }
-        return total;
+        double total = controlVenta.calcularTotal(model);
+        fieldTotal.setText(String.format("%.2f", total));
     }
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -131,17 +128,23 @@ public class Venta extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         btnTotalV = new javax.swing.JButton();
         btnNuevoV = new javax.swing.JButton();
-        jTextField2 = new javax.swing.JTextField();
+        fieldTotal = new javax.swing.JTextField();
         btnReporte = new javax.swing.JButton();
         btnRegresar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
+
         jLabel1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 36)); // NOI18N
         jLabel1.setText("Ventas");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel3.setText("Nombre");
+        jLabel3.setText("Producto");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel4.setText("Precio");
@@ -154,25 +157,47 @@ public class Venta extends javax.swing.JFrame {
 
         item.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                itemActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
         item1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item1ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
+        item2.setEditable(false);
+        item2.setEnabled(false);
         item2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item2ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
         item3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item3ActionPerformed(evt);
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        item3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
@@ -184,18 +209,69 @@ public class Venta extends javax.swing.JFrame {
                 "Nombre", "Cantidad", "Precio", "Codigo", "Proveedor"
             }
         ));
+        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         btnTotalV.setText("Total");
+        btnTotalV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnTotalV.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         btnNuevoV.setText("Nuevo");
+        btnNuevoV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnNuevoV.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
+
+        fieldTotal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        fieldTotal.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         btnReporte.setText("Reporte");
+        btnReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Venta.this.actionPerformed(evt);
+            }
+        });
+        btnReporte.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
+            }
+        });
 
         btnRegresar.setText("Regresar");
         btnRegresar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnRegresarActionPerformed(evt);
+            }
+        });
+        btnRegresar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Venta.this.keyPressed(evt);
             }
         });
 
@@ -235,14 +311,14 @@ public class Venta extends javax.swing.JFrame {
                                     .addComponent(item2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(item3, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addComponent(fieldTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(107, 107, 107)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGap(87, 87, 87)
                                 .addComponent(item1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(46, 46, 46))
         );
@@ -283,7 +359,7 @@ public class Venta extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnTotalV, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(fieldTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(93, 93, 93))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -313,33 +389,41 @@ public class Venta extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void itemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_itemActionPerformed
-
-    private void item1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item1ActionPerformed
-
-    private void item2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item2ActionPerformed
-
-    private void item3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_item3ActionPerformed
-
     private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegresarActionPerformed
         // TODO add your handling code here:
         new Menu(new controles.Configuracion()).setVisible(true);
         dispose(); // Cierra la ventana actual de Venta
     }//GEN-LAST:event_btnRegresarActionPerformed
 
+    private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
+        if (evt.getSource()==btnTotalV) {
+            registrarVenta();
+        }
+        if (evt.getSource()==btnNuevoV) {
+            agregarFila();
+            actualizarTotal();
+        }
+    }//GEN-LAST:event_actionPerformed
+
+    private void keyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keyPressed
+        if (evt.getKeyCode()==KeyEvent.VK_ESCAPE) {
+            new Menu(config).setVisible(true);
+            dispose();
+        }
+        if (evt.getKeyCode()==KeyEvent.VK_ENTER&&item.hasFocus()) {
+            buscarPorDescripcion();
+        }
+        if (evt.getKeyCode()==KeyEvent.VK_ENTER&&item3.hasFocus()) {
+            buscarPorCodigo();
+        }
+    }//GEN-LAST:event_keyPressed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNuevoV;
     private javax.swing.JButton btnRegresar;
     private javax.swing.JButton btnReporte;
     private javax.swing.JButton btnTotalV;
+    private javax.swing.JTextField fieldTotal;
     private javax.swing.JTextField item;
     private javax.swing.JTextField item1;
     private javax.swing.JTextField item2;
@@ -352,6 +436,5 @@ public class Venta extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }

@@ -3,6 +3,7 @@ package vista;
 import controles.Configuracion;
 import controles.ControlProveedores;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
 
 
 public class Proveedores extends javax.swing.JFrame {
@@ -27,8 +28,8 @@ public class Proveedores extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         btnAgregarProv = new javax.swing.JButton();
-        btnModificarI = new javax.swing.JButton();
-        btnEliminarI = new javax.swing.JButton();
+        btnModificarProv = new javax.swing.JButton();
+        btnEliminarProv = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
@@ -53,25 +54,25 @@ public class Proveedores extends javax.swing.JFrame {
             }
         });
 
-        btnModificarI.setText("Modificar");
-        btnModificarI.addActionListener(new java.awt.event.ActionListener() {
+        btnModificarProv.setText("Modificar");
+        btnModificarProv.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Proveedores.this.actionPerformed(evt);
             }
         });
-        btnModificarI.addKeyListener(new java.awt.event.KeyAdapter() {
+        btnModificarProv.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 Proveedores.this.keyPressed(evt);
             }
         });
 
-        btnEliminarI.setText("Eliminar");
-        btnEliminarI.addActionListener(new java.awt.event.ActionListener() {
+        btnEliminarProv.setText("Eliminar");
+        btnEliminarProv.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Proveedores.this.actionPerformed(evt);
             }
         });
-        btnEliminarI.addKeyListener(new java.awt.event.KeyAdapter() {
+        btnEliminarProv.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 Proveedores.this.keyPressed(evt);
             }
@@ -82,7 +83,7 @@ public class Proveedores extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nombre"
+                "ID", "Nombre", "Contacto"
             }
         ));
         jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -103,8 +104,8 @@ public class Proveedores extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnAgregarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnModificarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEliminarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnModificarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEliminarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -117,9 +118,9 @@ public class Proveedores extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAgregarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
-                .addComponent(btnModificarI, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnModificarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(29, 29, 29)
-                .addComponent(btnEliminarI, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnEliminarProv, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(43, 43, 43))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
@@ -158,16 +159,54 @@ public class Proveedores extends javax.swing.JFrame {
     }//GEN-LAST:event_keyPressed
 
     private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
+        // Agregar proveedor
         if (evt.getSource() == btnAgregarProv) {
             new AgregarProv(config).setVisible(true);
-            cargarTablaProveedores(); // Recargar tabla después de agregar
+            dispose();
         }
+        // Modificar proveedor
+        if (evt.getSource() == btnModificarProv) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un proveedor para modificar", 
+                                              "Atención", JOptionPane.WARNING_MESSAGE);
+            } else {
+                // Se espera que el modelo provisto por ControlProveedores tenga 4 columnas:
+                // 0: ID, 1: Nombre, 2: Código, 3: Contacto.
+                int id = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 0).toString());
+                String nombre = jTable1.getValueAt(filaSeleccionada, 1).toString();
+                String codigo = jTable1.getValueAt(filaSeleccionada, 2).toString();
+                String contacto = jTable1.getValueAt(filaSeleccionada, 3).toString();
+                
+                // Invoca AgregarProv en modo MODIFICAR pasando toda la información
+                new AgregarProv(config, AgregarProv.Mode.MODIFICAR, id, codigo, nombre, contacto).setVisible(true);
+                dispose();
+            }
+        }
+        // Eliminar proveedor
+        if (evt.getSource() == btnEliminarProv) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un proveedor para eliminar", 
+                                              "Atención", JOptionPane.WARNING_MESSAGE);
+            } else {
+                int id = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 0).toString());
+                // El método eliminarProveedor de ControlProveedores ya verifica productos asociados y confirma la operación.
+                boolean eliminado = cProv.eliminarProveedor(id);
+                if (eliminado) {
+                    JOptionPane.showMessageDialog(this, "Proveedor eliminado correctamente");
+                    cargarTablaProveedores();
+                }
+            }
+        }
+
+
     }//GEN-LAST:event_actionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarProv;
-    private javax.swing.JButton btnEliminarI;
-    private javax.swing.JButton btnModificarI;
+    private javax.swing.JButton btnEliminarProv;
+    private javax.swing.JButton btnModificarProv;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

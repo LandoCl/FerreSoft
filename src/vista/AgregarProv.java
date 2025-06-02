@@ -1,6 +1,8 @@
 package vista;
 
 import controles.Configuracion;
+import controles.ControlProveedores;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,11 +15,42 @@ import javax.swing.JOptionPane;
  * @author jabs0
  */
 public class AgregarProv extends javax.swing.JFrame {
+    public enum Mode {
+        AGREGAR, MODIFICAR
+    }
+    
     private Configuracion config;
+    private ControlProveedores cProv;
+    private Mode mode = Mode.AGREGAR;  // modo por defecto: agregar
+    private int idProveedor;           // se utiliza únicamente en modo MODIFICAR
+
+    // Constructor por defecto: modo AGREGAR
     public AgregarProv(Configuracion config) {
         this.config = config;
         initComponents();
+        cProv = new ControlProveedores(config);
+        mode = Mode.AGREGAR;
     }
+    
+    // Constructor sobrecargado para el modo MODIFICAR.
+    // Recibe los datos del proveedor seleccionado para prellenar los campos.
+    public AgregarProv(Configuracion config, Mode mode, int id, String codigo, String nombre, String contacto) {
+        this.config = config;
+        initComponents();
+        cProv = new ControlProveedores(config);
+        this.mode = mode;
+        this.idProveedor = id;
+        
+        // Prellenar los campos con los datos actuales
+        txtCodigoProv.setText(codigo);
+        txtNombreProv.setText(nombre);
+        txtContacto.setText(contacto);
+        
+        // Actualizar el texto del botón de guardar para reflejar que se trata de una modificación
+        btnGuardarProv.setText("Modificar");
+    }
+
+
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -30,14 +63,27 @@ public class AgregarProv extends javax.swing.JFrame {
         txtNombreProv = new javax.swing.JTextField();
         btnGuardarProv = new javax.swing.JButton();
         btnRegresar = new javax.swing.JButton();
+        lblContProv = new javax.swing.JLabel();
+        txtContacto = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                AgregarProv.this.keyPressed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 36)); // NOI18N
         jLabel1.setText("Agregar Proveedor");
 
         lblNomProv.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblNomProv.setText("Nombre");
+
+        txtCodigoProv.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                AgregarProv.this.keyPressed(evt);
+            }
+        });
 
         lblIdProv.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblIdProv.setText("ID");
@@ -47,6 +93,11 @@ public class AgregarProv extends javax.swing.JFrame {
                 txtNombreProvActionPerformed(evt);
             }
         });
+        txtNombreProv.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                AgregarProv.this.keyPressed(evt);
+            }
+        });
 
         btnGuardarProv.setText("Guardar");
         btnGuardarProv.addActionListener(new java.awt.event.ActionListener() {
@@ -54,11 +105,30 @@ public class AgregarProv extends javax.swing.JFrame {
                 btnGuardarProvActionPerformed(evt);
             }
         });
+        btnGuardarProv.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                AgregarProv.this.keyPressed(evt);
+            }
+        });
 
         btnRegresar.setText("Regresar");
         btnRegresar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnRegresarActionPerformed(evt);
+            }
+        });
+        btnRegresar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                AgregarProv.this.keyPressed(evt);
+            }
+        });
+
+        lblContProv.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblContProv.setText("Contacto");
+
+        txtContacto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtContactokeyPressed(evt);
             }
         });
 
@@ -75,11 +145,13 @@ public class AgregarProv extends javax.swing.JFrame {
                         .addGap(41, 41, 41)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(lblIdProv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblNomProv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(lblNomProv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblContProv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(44, 44, 44)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtCodigoProv, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtNombreProv, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txtNombreProv, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtContacto, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(129, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(224, 224, 224)
@@ -97,11 +169,15 @@ public class AgregarProv extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblNomProv)
                     .addComponent(txtNombreProv, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtCodigoProv, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblIdProv))
                 .addGap(27, 27, 27)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblIdProv, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtCodigoProv, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblContProv)
+                    .addComponent(txtContacto, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardarProv)
                     .addComponent(btnRegresar))
@@ -113,41 +189,34 @@ public class AgregarProv extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarProvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarProvActionPerformed
-        String codigo = txtCodigoProv.getText();
-        String nombre = txtNombreProv.getText();
-
-        if (codigo.isEmpty() || nombre.isEmpty()) {
+        String codigo = txtCodigoProv.getText().trim();
+        String nombre = txtNombreProv.getText().trim();
+        String contacto = txtContacto.getText().trim();
+        
+        if (codigo.isEmpty() || nombre.isEmpty() || contacto.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios");
             return;
         }
-
-        try (Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/ferreteria_acosta", "administrador", "admin1234")) {
-
-            PreparedStatement check = con.prepareStatement(
-                    "SELECT COUNT(*) FROM Proveedor WHERE codigo_prov = ?");
-            check.setString(1, codigo);
-            ResultSet rs = check.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(this, "Ese código de proveedor ya existe");
-                return;
+        
+        boolean operacionExitosa = false;
+        if (mode == Mode.AGREGAR) {
+            operacionExitosa = cProv.agregarProveedor(codigo, nombre, contacto);
+            if (operacionExitosa) {
+                JOptionPane.showMessageDialog(this, "Proveedor agregado correctamente");
+                // Limpiar campos para agregar otro, o cerrar la ventana.
+                txtCodigoProv.setText("");
+                txtNombreProv.setText("");
+                txtContacto.setText("");
             }
-
-            PreparedStatement insert = con.prepareStatement(
-                    "INSERT INTO Proveedor (codigo_prov, nombre, contacto) VALUES (?, ?, ?)");
-            insert.setString(1, codigo);
-            insert.setString(2, nombre);
-            insert.setString(3, "N/A"); 
-            insert.executeUpdate();
-
-            JOptionPane.showMessageDialog(this, "Proveedor agregado correctamente");
-
-            txtCodigoProv.setText("");
-            txtNombreProv.setText("");
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage());
+        } else if (mode == Mode.MODIFICAR) {
+            operacionExitosa = cProv.modificarProveedor(idProveedor, codigo, nombre, contacto);
+            if (operacionExitosa) {
+                JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente");
+                dispose();
+                new Proveedores(config).setVisible(true);
+            }
         }
+
     }//GEN-LAST:event_btnGuardarProvActionPerformed
 
     private void txtNombreProvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreProvActionPerformed
@@ -155,18 +224,30 @@ public class AgregarProv extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNombreProvActionPerformed
 
     private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegresarActionPerformed
-        // TODO add your handling code here:
-        new Proveedores(config).setVisible(true);
         dispose();
+        new Proveedores(config).setVisible(true);
     }//GEN-LAST:event_btnRegresarActionPerformed
+
+    private void keyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keyPressed
+        if (evt.getKeyCode()==KeyEvent.VK_ESCAPE) {
+            dispose();
+            new Proveedores(config).setVisible(true);
+        }
+    }//GEN-LAST:event_keyPressed
+
+    private void txtContactokeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtContactokeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtContactokeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGuardarProv;
     private javax.swing.JButton btnRegresar;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblContProv;
     private javax.swing.JLabel lblIdProv;
     private javax.swing.JLabel lblNomProv;
     private javax.swing.JTextField txtCodigoProv;
+    private javax.swing.JTextField txtContacto;
     private javax.swing.JTextField txtNombreP;
     private javax.swing.JTextField txtNombreProv;
     // End of variables declaration//GEN-END:variables

@@ -59,6 +59,7 @@
                       <Component id="btnAgregarI" min="-2" pref="134" max="-2" attributes="0"/>
                       <Component id="btnEliminarI" min="-2" pref="134" max="-2" attributes="0"/>
                       <Component id="btnModificarI" min="-2" pref="134" max="-2" attributes="0"/>
+                      <Component id="btnRestock" min="-2" pref="134" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="49" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -96,6 +97,8 @@
                           <Component id="btnModificarI" min="-2" pref="47" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                           <Component id="btnEliminarI" min="-2" pref="47" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                          <Component id="btnRestock" min="-2" pref="47" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="22" max="32767" attributes="0"/>
@@ -205,6 +208,15 @@
         <Component class="javax.swing.JButton" name="btnModificarI">
           <Properties>
             <Property name="text" type="java.lang.String" value="Modificar"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionPerformed"/>
+            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="keyPressed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnRestock">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Surtir"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionPerformed"/>

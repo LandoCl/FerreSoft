@@ -4,6 +4,7 @@ import java.sql.Connection;
 import controles.Configuracion;
 import controles.ControlInventario;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
 
 
 public class Inventario extends javax.swing.JFrame {
@@ -34,6 +35,7 @@ public class Inventario extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         btnEliminarI = new javax.swing.JButton();
         btnModificarI = new javax.swing.JButton();
+        btnRestock = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -129,6 +131,18 @@ public class Inventario extends javax.swing.JFrame {
             }
         });
 
+        btnRestock.setText("Surtir");
+        btnRestock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inventario.this.actionPerformed(evt);
+            }
+        });
+        btnRestock.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Inventario.this.keyPressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -138,7 +152,8 @@ public class Inventario extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnAgregarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEliminarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnModificarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnModificarI, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnRestock, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(49, 49, 49)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
@@ -168,7 +183,9 @@ public class Inventario extends javax.swing.JFrame {
                         .addGap(33, 33, 33)
                         .addComponent(btnModificarI, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27)
-                        .addComponent(btnEliminarI, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnEliminarI, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(btnRestock, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -204,10 +221,74 @@ public class Inventario extends javax.swing.JFrame {
     }//GEN-LAST:event_keyPressed
 
     private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
-        if (evt.getSource()==btnAgregarI) {
+        Object fuente = evt.getSource();
+
+        // Agregar (el modo tradicional para ingresar un nuevo producto)
+        if (fuente == btnAgregarI) {
             new AgregarItem(config).setVisible(true);
-            cargarTablaProductos();
+            dispose();
         }
+        // Actualizar: se requiere que haya una fila seleccionada en jTable1
+        else if (fuente == btnModificarI) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada != -1) {
+                String descripcion = jTable1.getValueAt(filaSeleccionada, 0).toString();
+                int codigo = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 1).toString());
+                int stock = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 2).toString());
+                double precio = Double.parseDouble(jTable1.getValueAt(filaSeleccionada, 3).toString());
+                String proveedor = jTable1.getValueAt(filaSeleccionada, 4).toString();
+                
+                // Abrir AgregarItem en modo actualización (los campos de nombre, código, precio y proveedor son editables,
+                // mientras que la cantidad se deja fija y deshabilitada)
+                AgregarItem actualizarForm = new AgregarItem(config, AgregarItem.Mode.ACTUALIZAR, 
+                        descripcion, codigo, precio, proveedor, stock);
+                actualizarForm.setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecciona un producto para actualizar", 
+                                              "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+        // Surtir: requiere que se seleccione la fila; en este modo se actualiza únicamente la cantidad
+        else if (fuente == btnRestock) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada != -1) {
+                String descripcion = jTable1.getValueAt(filaSeleccionada, 0).toString();
+                int codigo = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 1).toString());
+                int stock = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 2).toString());
+                double precio = Double.parseDouble(jTable1.getValueAt(filaSeleccionada, 3).toString());
+                String proveedor = jTable1.getValueAt(filaSeleccionada, 4).toString();
+                
+                // Abrir AgregarItem en modo surtir (sólo se activa la cantidad; el resto de los campos se muestran de solo lectura)
+                AgregarItem surtirForm = new AgregarItem(config, AgregarItem.Mode.SURTIR, 
+                        descripcion, codigo, precio, proveedor, stock);
+                surtirForm.setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecciona un producto para surtir", 
+                                              "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+        // Eliminar: se verificará que haya una fila seleccionada y se invocará el método eliminarProducto
+        else if (fuente == btnEliminarI) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada != -1) {
+                int codigo = Integer.parseInt(jTable1.getValueAt(filaSeleccionada, 1).toString());
+                int confirmacion = JOptionPane.showConfirmDialog(this, "¿Desea eliminar este producto?");
+                if (confirmacion == JOptionPane.YES_OPTION) {
+                    if (cInv.eliminarProducto(codigo)) {
+                        JOptionPane.showMessageDialog(this, "Producto eliminado exitosamente");
+                        cargarTablaProductos();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Error al eliminar el producto");
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecciona un producto para eliminar",
+                                              "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
     }//GEN-LAST:event_actionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -215,6 +296,7 @@ public class Inventario extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarI;
     private javax.swing.JButton btnEliminarI;
     private javax.swing.JButton btnModificarI;
+    private javax.swing.JButton btnRestock;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

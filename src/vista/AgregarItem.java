@@ -1,30 +1,92 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package vista;
 
 import controles.Configuracion;
 import controles.ControlInventario;
 import java.awt.event.KeyEvent;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
 public class AgregarItem extends javax.swing.JFrame {
+    public enum Mode {
+        AGREGAR, ACTUALIZAR, SURTIR
+    }
+
+    private Mode mode = Mode.AGREGAR;
     private Configuracion config;
     private ControlInventario controlInventario;
+    private int originalCodigo; // Se usa para actualización o surtido.
+
+    // Constructor por defecto (modo AGREGAR)
     public AgregarItem(Configuracion config) {
         initComponents();
         this.config = config;
         this.controlInventario = new ControlInventario(config);
         cargarProveedores();
+        // En este modo, todos los campos están habilitados para ingresar un nuevo producto.
     }
+
+    // Constructor sobrecargado para los modos ACTUALIZAR y SURTIR.
+    // Se pasan los datos del producto seleccionado en Inventario para prellenar los campos.
+    public AgregarItem(Configuracion config, Mode mode, String descripcion, int codigo, double precio, String proveedor, int stock) {
+        initComponents();
+        this.config = config;
+        this.controlInventario = new ControlInventario(config);
+        cargarProveedores();
+        this.mode = mode;
+        this.originalCodigo = codigo;
+        
+        // Prellenar campos
+        txtNombreP.setText(descripcion);
+        txtTipoProducto.setText(String.valueOf(codigo));
+        txtPrecioP.setText(String.valueOf(precio));
+        txtCantidadP.setText(String.valueOf(stock));
+        
+        // Mostrar el proveedor en el ComboBox
+        DefaultComboBoxModel<String> modeloProv = (DefaultComboBoxModel<String>) comboProv.getModel();
+        modeloProv.setSelectedItem(proveedor);
+        
+        // Configurar habilitación de campos según el modo
+        if (mode == Mode.ACTUALIZAR) {
+            // Permitir modificar: nombre, código, precio y proveedor.
+            // La cantidad se muestra pero no se debe modificar.
+            txtNombreP.setEnabled(true);
+            txtTipoProducto.setEnabled(true);
+            txtPrecioP.setEnabled(true);
+            comboProv.setEnabled(true);
+            txtCantidadP.setEnabled(false);
+        } else if (mode == Mode.SURTIR) {
+            // Sólo se permite modificar la cantidad y el resto se muestra en solo lectura.
+            txtNombreP.setEnabled(false);
+            txtTipoProducto.setEnabled(false);
+            txtPrecioP.setEnabled(false);
+            comboProv.setEnabled(false);
+            txtCantidadP.setEnabled(true);
+        }
+    }
+
     private void cargarProveedores() {
         comboProv.setModel(controlInventario.cargarProveedores());
     }
 
+    // Método unificado de "guardar" que distingue según modo.
     private void guardarProducto() {
+        switch (mode) {
+            case AGREGAR:
+                guardarNuevoProducto();
+                break;
+            case ACTUALIZAR:
+                actualizarProducto();
+                break;
+            case SURTIR:
+                surtirProducto();
+                break;
+        }
+    }
+
+    // Método para insertar un nuevo producto (modo AGREGAR)
+    private void guardarNuevoProducto() {
         String nombre = txtNombreP.getText();
-        String codigo = txtTipoProducto.getText();
+        String codigoStr = txtTipoProducto.getText();
         String cantidadStr = txtCantidadP.getText();
         String precioStr = txtPrecioP.getText();
         String proveedor = (String) comboProv.getSelectedItem();
@@ -33,16 +95,61 @@ public class AgregarItem extends javax.swing.JFrame {
             int cantidad = Integer.parseInt(cantidadStr);
             double precio = Double.parseDouble(precioStr);
             
-            if (controlInventario.agregarProducto(nombre, codigo, cantidad, precio, proveedor)) {
+            if (controlInventario.agregarProducto(nombre, codigoStr, cantidad, precio, proveedor)) {
                 JOptionPane.showMessageDialog(this, "Producto agregado exitosamente",
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 this.dispose();
+                new Inventario(config).setVisible(true);
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Cantidad y precio deben ser números válidos",
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
-        dispose();
+    }
+
+    // Método para actualizar producto (modo ACTUALIZAR)
+    private void actualizarProducto() {
+        String nuevoNombre = txtNombreP.getText();
+        String codigoStr = txtTipoProducto.getText();
+        String precioStr = txtPrecioP.getText();
+        String nuevoProveedor = (String) comboProv.getSelectedItem();
+
+        if (nuevoNombre.isEmpty() || codigoStr.isEmpty() || nuevoProveedor.equals("-- Selecciona proveedor")) {
+            JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios en la actualización",
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int nuevoCodigo = Integer.parseInt(codigoStr);
+            double nuevoPrecio = Double.parseDouble(precioStr);
+            if (controlInventario.actualizarProducto(originalCodigo, nuevoCodigo, nuevoNombre, nuevoPrecio, nuevoProveedor)) {
+                JOptionPane.showMessageDialog(this, "Producto actualizado exitosamente",
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+                new Inventario(config).setVisible(true);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El código y precio deben ser números válidos",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método para surtir (modo SURTIR)
+    private void surtirProducto() {
+        String cantidadStr = txtCantidadP.getText();
+        try {
+            int cantidadASurtir = Integer.parseInt(cantidadStr);
+            if (controlInventario.surtirProducto(originalCodigo, cantidadASurtir)) {
+                JOptionPane.showMessageDialog(this, "Producto surtido exitosamente",
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+                new Inventario(config).setVisible(true);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número válido",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     @SuppressWarnings("unchecked")

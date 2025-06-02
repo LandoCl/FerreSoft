@@ -53,8 +53,8 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="btnAgregarProv" alignment="0" min="-2" pref="134" max="-2" attributes="0"/>
-                      <Component id="btnModificarI" alignment="0" min="-2" pref="134" max="-2" attributes="0"/>
-                      <Component id="btnEliminarI" alignment="0" min="-2" pref="134" max="-2" attributes="0"/>
+                      <Component id="btnModificarProv" alignment="0" min="-2" pref="134" max="-2" attributes="0"/>
+                      <Component id="btnEliminarProv" alignment="0" min="-2" pref="134" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="31" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -71,9 +71,9 @@
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="btnAgregarProv" min="-2" pref="47" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                  <Component id="btnModificarI" min="-2" pref="47" max="-2" attributes="0"/>
+                  <Component id="btnModificarProv" min="-2" pref="47" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
-                  <Component id="btnEliminarI" min="-2" pref="47" max="-2" attributes="0"/>
+                  <Component id="btnEliminarProv" min="-2" pref="47" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
               </Group>
               <Group type="102" alignment="1" attributes="0">
@@ -96,7 +96,7 @@
             <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="keyPressed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnModificarI">
+        <Component class="javax.swing.JButton" name="btnModificarProv">
           <Properties>
             <Property name="text" type="java.lang.String" value="Modificar"/>
           </Properties>
@@ -105,7 +105,7 @@
             <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="keyPressed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnEliminarI">
+        <Component class="javax.swing.JButton" name="btnEliminarProv">
           <Properties>
             <Property name="text" type="java.lang.String" value="Eliminar"/>
           </Properties>
@@ -124,10 +124,30 @@
             <Component class="javax.swing.JTable" name="jTable1">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="2" rowCount="0">
+                  <Table columnCount="3" rowCount="0">
                     <Column editable="true" title="ID" type="java.lang.Object"/>
                     <Column editable="true" title="Nombre" type="java.lang.Object"/>
+                    <Column editable="true" title="Contacto" type="java.lang.Object"/>
                   </Table>
+                </Property>
+                <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                  <TableColumnModel selectionModel="0">
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                  </TableColumnModel>
                 </Property>
                 <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
                   <TableHeader reorderingAllowed="true" resizingAllowed="true"/>

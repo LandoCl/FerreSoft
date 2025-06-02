@@ -15,7 +15,7 @@ public class Configuracion {
     private String actionSource;
 
     public Configuracion() {
-        this.databaseUrl = "jdbc:mysql://localhost:3308/ferreteria_acosta";
+        this.databaseUrl = "jdbc:mysql://localhost:3307/ferreteria_acosta";
         this.user = "administrador";
         this.password="admin1234";
     }
@@ -80,148 +80,119 @@ public class Configuracion {
      */
     public boolean addUser(String username) {
         String password = showPasswordDialog("Crear Usuario", "Ingrese la contraseña para el nuevo usuario:");
-        if (password == null || password.isEmpty()) return false;
-        
+        if (password == null || password.isEmpty())
+            return false;
+
         Connection conn = null;
+        Statement stmt = null;
         try {
             conn = DriverManager.getConnection(databaseUrl, user, this.password);
-            
-            // Verificar si el usuario ya existe
-            String checkSql = "SELECT COUNT(*) AS count FROM mysql.user WHERE user = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, username);
-            ResultSet rs = checkStmt.executeQuery();
-            
+            stmt = conn.createStatement();
+
+            // Verificar si el usuario ya existe para host 'localhost'
+            String checkSql = "SELECT COUNT(*) AS count FROM mysql.user WHERE user = '" + username + "' AND host = 'localhost'";
+            ResultSet rs = stmt.executeQuery(checkSql);
             if (rs.next() && rs.getInt("count") > 0) {
                 JOptionPane.showMessageDialog(null, "El usuario ya existe", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
-            
+
             // Crear el usuario
-            String createSql = "CREATE USER ?@'localhost' IDENTIFIED BY ?";
-            PreparedStatement createStmt = conn.prepareStatement(createSql);
-            createStmt.setString(1, username);
-            createStmt.setString(2, password);
-            createStmt.executeUpdate();
-            
-            // Asignar privilegios específicos según la estructura de la base de datos
+            String createSql = "CREATE USER '" + username + "'@'localhost' IDENTIFIED BY '" + password + "'";
+            stmt.executeUpdate(createSql);
+
+            // Asignar privilegios utilizando la forma:
+            // GRANT SELECT, UPDATE ON ferreteria_acosta.* TO 'username'@'localhost';
+            // Se pueden asignar varios grupos de privilegios; aquí se muestran ejemplos.
             String[] grants = {
-                // Permisos para Inventario (SELECT y UPDATE)
-                "GRANT SELECT, UPDATE ON ferreteria_acosta.Inventario TO ?@'localhost'",
-                
-                // Permisos para Venta (SELECT e INSERT)
-                "GRANT SELECT, INSERT ON ferreteria_acosta.Venta TO ?@'localhost'",
-                
-                // Permisos para Detalle_Venta (INSERT)
-                "GRANT INSERT ON ferreteria_acosta.Detalle_Venta TO ?@'localhost'",
-                
-                // Permiso para ver las tablas relacionadas (solo SELECT)
-                "GRANT SELECT ON ferreteria_acosta.Proveedor TO ?@'localhost'",
-                "GRANT SELECT ON ferreteria_acosta.Stock TO ?@'localhost'",
-                "GRANT SELECT ON ferreteria_acosta.Corte TO ?@'localhost'"
+                "GRANT SELECT, UPDATE ON ferreteria_acosta.* TO '" + username + "'@'localhost'",
+                "GRANT SELECT, INSERT ON ferreteria_acosta.* TO '" + username + "'@'localhost'",
+                "GRANT INSERT ON ferreteria_acosta.* TO '" + username + "'@'localhost'",
+                "GRANT EXECUTE ON ferreteria_acosta.* TO '" + username + "'@'localhost'"
             };
-            
-            for (String grant : grants) {
-                PreparedStatement grantStmt = conn.prepareStatement(grant);
-                grantStmt.setString(1, username);
-                grantStmt.executeUpdate();
+
+            for (String grantSql : grants) {
+                stmt.executeUpdate(grantSql);
             }
-            
-            // Otorgar permiso para usar procedimientos almacenados si existen
-            try {
-                String procGrant = "GRANT EXECUTE ON PROCEDURE ferreteria_acosta.* TO ?@'localhost'";
-                PreparedStatement procStmt = conn.prepareStatement(procGrant);
-                procStmt.setString(1, username);
-                procStmt.executeUpdate();
-            } catch (SQLException e) {
-                // Ignorar si no hay procedimientos almacenados
-            }
-            
+
+            // Forzar que MySQL refresque sus privilegios
+            stmt.executeUpdate("FLUSH PRIVILEGES");
+
             return true;
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear usuario: " + ex.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error al crear usuario: " + ex.getMessage(),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } finally {
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException ex) { /* Ignorar */ }
+            }
             if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al cerrar conexión: " + ex.getMessage());
-                }
+                try { conn.close(); } catch (SQLException ex) { /* Ignorar */ }
             }
         }
     }
-    
-    /**
-     * Modifica un usuario existente (solo la contraseña)
-     */
+
     public boolean modifyUser(String oldUsername, String newUsername) {
-        // En MySQL no podemos cambiar el nombre de usuario directamente, 
-        // solo podemos cambiar la contraseña o privilegios
-        // Por eso aquí solo manejaremos el cambio de contraseña
-        
-        String newPassword = showPasswordDialog("Modificar Usuario", 
-            "Ingrese la nueva contraseña para el usuario " + oldUsername + ":");
-        if (newPassword == null) return false;
-        
+        // Aquí asumiremos que solo se modifica la contraseña
+        String newPassword = showPasswordDialog("Modificar Usuario", "Ingrese la nueva contraseña para el usuario " + oldUsername + ":");
+        if (newPassword == null || newPassword.isEmpty())
+            return false;
+
         Connection conn = null;
+        Statement stmt = null;
         try {
             conn = DriverManager.getConnection(databaseUrl, user, this.password);
-            
-            String sql = "ALTER USER ?@'localhost' IDENTIFIED BY ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, oldUsername);
-            stmt.setString(2, newPassword);
-            stmt.executeUpdate();
-            
+            stmt = conn.createStatement();
+
+            // ALTER USER debe formarse sin parámetros
+            String sql = "ALTER USER '" + oldUsername + "'@'localhost' IDENTIFIED BY '" + newPassword + "'";
+            stmt.executeUpdate(sql);
+
+            stmt.executeUpdate("FLUSH PRIVILEGES");
+
             return true;
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al modificar usuario: " + ex.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error al modificar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } finally {
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException ex) { /* Ignorar */ }
+            }
             if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al cerrar conexión: " + ex.getMessage());
-                }
+                try { conn.close(); } catch (SQLException ex) { /* Ignorar */ }
             }
         }
     }
-    
-    /**
-     * Elimina un usuario
-     */
+
     public boolean deleteUser(String username) {
-        int confirm = JOptionPane.showConfirmDialog(null, 
-            "¿Está seguro que desea eliminar al usuario " + username + "?", 
-            "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
-        
-        if (confirm != JOptionPane.YES_OPTION) return false;
-        
+        int confirm = JOptionPane.showConfirmDialog(null,
+                "¿Está seguro que desea eliminar al usuario " + username + "?",
+                "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION)
+            return false;
+
         Connection conn = null;
+        Statement stmt = null;
         try {
             conn = DriverManager.getConnection(databaseUrl, user, this.password);
-            
-            String sql = "DROP USER ?@'localhost'";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, username);
-            stmt.executeUpdate();
-            
+            stmt = conn.createStatement();
+
+            String sql = "DROP USER '" + username + "'@'localhost'";
+            stmt.executeUpdate(sql);
+
+            stmt.executeUpdate("FLUSH PRIVILEGES");
+
             return true;
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar usuario: " + ex.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error al eliminar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } finally {
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException ex) { /* Ignorar */ }
+            }
             if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al cerrar conexión: " + ex.getMessage());
-                }
+                try { conn.close(); } catch (SQLException ex) { /* Ignorar */ }
             }
         }
     }

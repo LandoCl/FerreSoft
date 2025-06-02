@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package vista;
 
 import controles.Configuracion;
@@ -85,13 +81,16 @@ public class Usuarios extends javax.swing.JFrame {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow >= 0) {
             String username = (String) tableModel.getValueAt(selectedRow, 0);
-            
-            if (config.deleteUser(username)) {
-                loadUsers(); // Recargar la lista de usuarios
-                JOptionPane.showMessageDialog(this, 
-                    "Usuario eliminado exitosamente", 
-                    "Éxito", 
-                    JOptionPane.INFORMATION_MESSAGE);
+            if (!username.equals("administrador")) {
+                if (config.deleteUser(username)) {
+                    loadUsers(); // Recargar la lista de usuarios
+                    JOptionPane.showMessageDialog(this, 
+                        "Usuario eliminado exitosamente", 
+                        "Éxito", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No se puede eliminar al administrador","Advertencia",JOptionPane.WARNING_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(this, 
@@ -130,6 +129,11 @@ public class Usuarios extends javax.swing.JFrame {
                 Usuarios.this.actionPerformed(evt);
             }
         });
+        btnAgregar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Usuarios.this.keyPressed(evt);
+            }
+        });
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -160,11 +164,21 @@ public class Usuarios extends javax.swing.JFrame {
                 Usuarios.this.actionPerformed(evt);
             }
         });
+        btnEliminar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Usuarios.this.keyPressed(evt);
+            }
+        });
 
         btnModificar.setText("Modificar");
         btnModificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Usuarios.this.actionPerformed(evt);
+            }
+        });
+        btnModificar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Usuarios.this.keyPressed(evt);
             }
         });
 
