@@ -26,11 +26,16 @@ public class Venta extends javax.swing.JFrame {
         
         // Configurar el modelo de la tabla para 4 columnas: Descripción, Cantidad, Precio, Código
         DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Descripción", "Cantidad", "Precio", "Código"}, 0);
-        jTable1.setModel(tableModel);
+        tabVentas.setModel(tableModel);
     }
     
     // --- Métodos de lógica que serán llamados por los listeners asignados en initComponents() ---
-    
+    private void eliminaFila(DefaultTableModel modelo){
+        if (tabVentas.getSelectedRow()!=-1) {
+            int filaSel = tabVentas.getSelectedRow();
+            modelo.removeRow(filaSel);
+        }
+    }
     // Se llamará al pulsar ENTER en el campo "item" (Descripción)
     private void buscarPorDescripcion() {
         String descripcion = item.getText().trim();
@@ -83,7 +88,7 @@ public class Venta extends javax.swing.JFrame {
             return;
         }
         
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tabVentas.getModel();
         model.addRow(new Object[]{nombre, cantidad, precio, codigo});
         
         // Limpiar los campos y enfocar en "item" para la siguiente entrada
@@ -96,7 +101,7 @@ public class Venta extends javax.swing.JFrame {
     
     // Lógica para el botón de registrar venta (ya asignado a btnTotalV)
     private void registrarVenta() {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tabVentas.getModel();
         boolean exito = controlVenta.guardarVenta(model);
         if (exito) {
             double total = controlVenta.calcularTotal(model);
@@ -106,7 +111,7 @@ public class Venta extends javax.swing.JFrame {
     }
     // Método que recalcula el total en base al contenido actual de la tabla y lo muestra en jTextField2
     private void actualizarTotal() {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tabVentas.getModel();
         double total = controlVenta.calcularTotal(model);
         fieldTotal.setText(String.format("%.2f", total));
     }
@@ -125,7 +130,7 @@ public class Venta extends javax.swing.JFrame {
         item2 = new javax.swing.JTextField();
         item3 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tabVentas = new javax.swing.JTable();
         btnTotalV = new javax.swing.JButton();
         btnNuevoV = new javax.swing.JButton();
         fieldTotal = new javax.swing.JTextField();
@@ -201,7 +206,7 @@ public class Venta extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabVentas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -209,12 +214,12 @@ public class Venta extends javax.swing.JFrame {
                 "Nombre", "Cantidad", "Precio", "Codigo", "Proveedor"
             }
         ));
-        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+        tabVentas.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 Venta.this.keyPressed(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tabVentas);
 
         btnTotalV.setText("Total");
         btnTotalV.addActionListener(new java.awt.event.ActionListener() {
@@ -397,7 +402,11 @@ public class Venta extends javax.swing.JFrame {
 
     private void actionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionPerformed
         if (evt.getSource()==btnTotalV) {
-            registrarVenta();
+            if (tabVentas.getRowCount()>0) {
+                registrarVenta();
+            } else {
+                JOptionPane.showMessageDialog(this, "No hay productos para realizar la venta","Advertencia",JOptionPane.WARNING_MESSAGE);
+            }
         }
         if (evt.getSource()==btnNuevoV) {
             agregarFila();
@@ -415,6 +424,9 @@ public class Venta extends javax.swing.JFrame {
         }
         if (evt.getKeyCode()==KeyEvent.VK_ENTER&&item3.hasFocus()) {
             buscarPorCodigo();
+        }
+        if (evt.getKeyCode()==KeyEvent.VK_DELETE) {
+            eliminaFila((DefaultTableModel)tabVentas.getModel());
         }
     }//GEN-LAST:event_keyPressed
 
@@ -435,6 +447,6 @@ public class Venta extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tabVentas;
     // End of variables declaration//GEN-END:variables
 }
