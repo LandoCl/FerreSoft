@@ -66,16 +66,17 @@ ALTER TABLE Venta ADD CONSTRAINT fk_venta_corte FOREIGN KEY (id_corte)
 REFERENCES Corte (id_corte);
 
 -- creasion de usuarios
-drop user 'cajero'@'localhost';
-drop user 'administrador'@'localhost';
 CREATE USER 'administrador'@'localhost' IDENTIFIED BY 'admin1234';
 GRANT ALL PRIVILEGES ON ferreteria_acosta.* TO 'administrador'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON *.* TO 'administrador'@'localhost' WITH GRANT OPTION;
 select * from mysql.user;
+flush privileges;
+
 CREATE USER 'cajero'@'localhost' IDENTIFIED BY 'cajero1234';
 GRANT SELECT, UPDATE ON ferreteria_acosta.* TO 'cajero'@'localhost';
 
+ALTER TABLE Venta MODIFY COLUMN id_corte INT NULL;
 
-
-
-
+SELECT DISTINCT TRIM(BOTH '\'' FROM SUBSTRING_INDEX(GRANTEE, '@', 1)) AS user 
+FROM INFORMATION_SCHEMA.SCHEMA_PRIVILEGES 
+WHERE TABLE_SCHEMA = 'ferreteria_acosta';
